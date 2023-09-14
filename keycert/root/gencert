@@ -1,0 +1,19 @@
+#!/bin/bash
+
+source root/.var
+
+openssl \
+    genrsa \
+    -out ${PRIVKEY} \
+    ${NUMBIT}
+
+openssl \
+    req \
+    -new \
+    -x509 \
+    -days ${EXP} \
+    -subj "/C=${COUNTRY}/ST=${STATE}/L=${LOCAL}/O=${ORG}/OU=${ORG_UNIT}/CN=${COMMON_NAME}" \
+    -addext "subjectAltName=DNS:${COMMON_NAME},DNS:*.${COMMON_NAME}" \
+    -key ${PRIVKEY} \
+    -out ${SERVERCERT}
+

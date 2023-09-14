@@ -1,0 +1,72 @@
+#!/bin/bash
+
+source servers/.var
+
+openssl rand -base64 756 > ${CLUSTERCERT}
+
+for SERVER in ${SERVERS[@]};
+do
+    rm ${SERVER/#/${SERVER_PARENT}/} -rf
+    mkdir ${SERVER/#/${SERVER_PARENT}/}/cert -p
+
+    echo "[req]
+distinguished_name = ${SERVER}.${COMMON_NAME}
+x509_extensions = v3_req
+req_extensions = req_ext
+prompt = no
+
+[${SERVER}.${COMMON_NAME}]
+
+[v3_req]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = ${COMMON_NAME}
+DNS.2 = *.${COMMON_NAME}
+DNS.3 = ${SERVER}.${COMMON_NAME}">  ${SERVER/#/${SERVER_PARENT}/}/req.conf
+
+    openssl \
+        genrsa \
+        -out ${SERVER/#/${SERVER_PARENT}/}/${PRIVKEY} \
+        ${NUMBIT}
+
+    openssl \
+        req \
+        -new \
+        -key ${SERVER/#/${SERVER_PARENT}/}/${PRIVKEY} \
+        -subj "/C=${COUNTRY}/ST=${STATE}/L=${LOCAL}/O=${ORG}/OU=${ORG_UNIT}/CN=${SERVER}.${COMMON_NAME}" \
+        -config ${SERVER/#/${SERVER_PARENT}/}/req.conf \
+        -extensions 'v3_req' \
+        -out ${SERVER/#/${SERVER_PARENT}/}/${CRTSIGNREQ}
+    
+    openssl \
+        x509 \
+        -req \
+        -days ${EXP} \
+        -in ${SERVER/#/${SERVER_PARENT}/}/${CRTSIGNREQ} \
+        -CA ${ROOTCA} \
+        -CAkey ${ROOTPRIV} \
+        -out ${SERVER/#/${SERVER_PARENT}/}/${SERVER}.pem \
+        -extensions req_ext \
+        -extfile ${SERVER/#/${SERVER_PARENT}/}/req.conf
+    
+    cat \
+        ${SERVER/#/${SERVER_PARENT}/}/${SERVER}.pem \
+        ${SERVER/#/${SERVER_PARENT}/}/${PRIVKEY} \
+        > ${SERVER/#/${SERVER_PARENT}/}/fullchain.pem
+
+    cp \
+        ${SERVER/#/${SERVER_PARENT}/}/fullchain.pem \
+        ${CLUSTERCERT} \
+        ${ROOTCA} \
+        ${SERVER/#/${SERVER_PARENT}/}/cert
+    
+    chmod 400 ${SERVER/#/${SERVER_PARENT}/}/cert/${CLUSTERCERT}
+done
+
+rm ${CLUSTERCERT} -f

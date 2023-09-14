@@ -1,0 +1,64 @@
+#!/bin/bash
+
+source clients/.var
+
+for CLIENT in ${CLIENTS[@]};
+do
+    rm ${CLIENT/#/${CLIENT_PARENT}/} -rf
+    mkdir ${CLIENT/#/${CLIENT_PARENT}/}/cert -p
+
+    echo "[req]
+distinguished_name = ${CLIENT}.${COMMON_NAME}
+x509_extensions = v3_req
+req_extensions = req_ext
+prompt = no
+
+[${CLIENT}.${COMMON_NAME}]
+
+[v3_req]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = ${COMMON_NAME}
+DNS.2 = *.${COMMON_NAME}
+DNS.3 = ${CLIENT}.${COMMON_NAME}">  ${CLIENT/#/${CLIENT_PARENT}/}/req.conf
+
+    openssl \
+        genrsa \
+        -out ${CLIENT/#/${CLIENT_PARENT}/}/${PRIVKEY} \
+        ${NUMBIT} 
+
+    openssl \
+        req \
+        -new \
+        -key ${CLIENT/#/${CLIENT_PARENT}/}/${PRIVKEY} \
+        -subj "/C=${COUNTRY}/ST=${STATE}/L=${LOCAL}/O=${ORG}/OU=${ORG_UNIT}/CN=${CLIENT}.${COMMON_NAME}" \
+        -config ${CLIENT/#/${CLIENT_PARENT}/}/req.conf \
+        -extensions 'v3_req' \
+        -out ${CLIENT/#/${CLIENT_PARENT}/}/${CRTSIGNREQ}
+    
+    openssl \
+        x509 \
+        -req \
+        -days ${EXP} \
+        -in ${CLIENT/#/${CLIENT_PARENT}/}/${CRTSIGNREQ} \
+        -CA ${ROOTCA} \
+        -CAkey ${ROOTPRIV} \
+        -out ${CLIENT/#/${CLIENT_PARENT}/}/${CLIENT}.pem \
+        -extensions req_ext \
+        -extfile ${CLIENT/#/${CLIENT_PARENT}/}/req.conf
+    
+    cat \
+        ${CLIENT/#/${CLIENT_PARENT}/}/${CLIENT}.pem ${CLIENT/#/${CLIENT_PARENT}/}/${PRIVKEY} \
+        > ${CLIENT/#/${CLIENT_PARENT}/}/fullchain.pem
+    
+    cp \
+        ${CLIENT/#/${CLIENT_PARENT}/}/fullchain.pem \
+        ${ROOTCA} \
+        ${CLIENT/#/${CLIENT_PARENT}/}/cert
+done

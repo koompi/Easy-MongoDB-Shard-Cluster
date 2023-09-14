@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  configs1:
+    container_name: ${CONTAINER_NAME}
+    image: mongo
+    command: 
+      - /bin/bash
+      - -c 
+      - |
+        echo ${DNSIPBYPASS} ${DNSNAMEBYPASS} >> /etc/hosts
+        useradd -mg users -s /bin/bash mongodb-user
+        chown mongodb-user /cert /data -R
+        su -c "ulimit -n 65536 && ulimit -u 2048 && mongos \
+          --configdb ${REPLSET_NAME}/${REPLSET_MEMBER} \
+          --keyFile /cert/${CLUSTERCERT} \
+          --bind_ip 0.0.0.0 \
+          --port 27017 \
+          --tlsMode requireTLS \
+          --tlsCAFile /cert/${CACERT} \
+          --tlsCertificateKeyFile /cert/${FULLCHAIN}" mongodb-user
+    ports:
+      - ${MONGO_PORT}:27017
+    volumes:
+      - ${CERT_PATH}:/cert
+      - ${DATA_PATH}:/data/db

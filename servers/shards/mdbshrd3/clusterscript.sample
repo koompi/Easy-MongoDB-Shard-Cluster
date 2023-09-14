@@ -1,0 +1,10 @@
+rs.initiate(
+  {
+    _id: "SHARD UNIQUE SERVER CLUSTER NAME",
+    members: [
+      { _id : 0, host : "[ipaddress]:[port]" },
+      { _id : 1, host : "[ipaddress]:[port]"" },
+      { _id : 2, host : "[ipaddress]:[port]" }
+    ]
+  }
+)

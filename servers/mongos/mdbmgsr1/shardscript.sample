@@ -1,0 +1,2 @@
+sh.addShard("mdbshrd1rs/[shard-replica-1-ip]:61100,[shard-replica-2-ip]:61101,[shard-replica-3-ip]:61102")
+sh.addShard("mdbshrd2rs/[shard-replica-1-ip]:61103,[shard-replica-2-ip]:61104,[shard-replica-3-ip]:61105")

@@ -1,0 +1,6 @@
+#!/bin/bash
+cd "$(dirname $0)"
+
+bash root/gencert
+bash servers/gencert
+bash clients/gencert
