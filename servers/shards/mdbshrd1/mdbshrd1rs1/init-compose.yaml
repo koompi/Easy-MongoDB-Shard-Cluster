@@ -5,7 +5,6 @@ services:
     restart: always
     dns:
       - ${NAMESERVER}
-    restart: always
     container_name: ${CONTAINER_NAME}
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${INITDB_ROOT_USERNAME}
