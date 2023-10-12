@@ -5,6 +5,7 @@ services:
     container_name: ${CONTAINER_NAME}
     image: mongo
     restart: always
+    network_mode: bridge
     dns:
       - ${NAMESERVER}
     command:
