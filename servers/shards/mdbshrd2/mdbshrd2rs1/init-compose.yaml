@@ -2,6 +2,8 @@ version: '3.1'
 services:
   mongo:
     image: mongo
+    dns:
+      - ${NAMESERVER}
     restart: always
     container_name: ${CONTAINER_NAME}
     environment:

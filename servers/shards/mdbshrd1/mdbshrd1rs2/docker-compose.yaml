@@ -4,6 +4,8 @@ services:
   configs1:
     container_name: ${CONTAINER_NAME}
     image: mongo
+    dns:
+      - ${NAMESERVER}
     command:
       - /bin/bash
       - -c 
