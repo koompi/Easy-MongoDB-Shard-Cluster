@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  dnsserver1:
+    image: ubuntu/bind9:latest
+    container_name: ${CONTAINER_NAME}
+    environment:
+      - TZ=${TZ}
+      - BIND9_USER=${BIND_USER}
+    ports:
+      - 53:53/udp
+      - 53:53/tcp
+      - 953:953/tcp
+    volumes:
+      - ${BASE_PATH}:/etc/bind/named.conf
+      - ${BASE_PATH}.acl:/etc/bind/named.conf.acl 
+      - ${BASE_PATH}.options:/etc/bind/named.conf.options
+      - ${BASE_PATH}.common.zones:/etc/bind/named.conf.common.zones
+      - ${BASE_PATH}.internal.zones:/etc/bind/named.conf.internal.zones
+      - ${BASE_PATH}.external.zones:/etc/bind/named.conf.external.zones
+      - ${CACHE_PATH}:/var/cache/bind
+      - ${RECORDS_PATH}:/var/lib/bind
+    network_mode: bridge

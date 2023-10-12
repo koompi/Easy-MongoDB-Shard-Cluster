@@ -1,0 +1,23 @@
+options {
+    directory "/var/lib/bind";
+    pid-file "/run/named/named.pid";
+    session-keyfile "/run/named/session.key";
+
+    allow-query       { any; };
+    allow-recursion   { any; };
+    allow-query-cache { any; };
+    allow-transfer    { any; };
+    allow-update      { any; };
+
+    version none;
+    hostname none;
+    server-id none;
+
+    recursion yes;
+
+    auth-nxdomain yes;
+    empty-zones-enable no;
+    dnssec-validation yes;
+
+    forwarders { 1.1.1.1; 8.8.8.8; };
+};

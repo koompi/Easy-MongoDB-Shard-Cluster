@@ -1,0 +1,6 @@
+zone "digital.kh" IN {
+    type master;
+    file "digital.kh.internal.zone";
+    allow-update { none; };
+    notify no;
+};
