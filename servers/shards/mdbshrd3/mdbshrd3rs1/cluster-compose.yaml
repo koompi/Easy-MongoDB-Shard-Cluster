@@ -4,6 +4,7 @@ services:
   mdbcfg1:
     container_name: ${CONTAINER_NAME}
     image: mongo
+    restart: always
     dns:
       - ${NAMESERVER}
     command:

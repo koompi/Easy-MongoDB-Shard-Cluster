@@ -2,6 +2,7 @@ version: '3.1'
 services:
   mongo:
     image: mongo
+    restart: always
     dns:
       - ${NAMESERVER}
     restart: always
