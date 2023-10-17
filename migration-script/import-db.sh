@@ -33,6 +33,7 @@ do
         --sslPEMKeyFile="${NEW_DB_PEMKEYFILE}" \
         --db ${CURRENT_DB} \
         --collection ${EACH_COLLECTION} \
+        --mode=upsert \
         --file "DATABASES/${CURRENT_DB}/${EACH_COLLECTION}.json"
     done
 done
