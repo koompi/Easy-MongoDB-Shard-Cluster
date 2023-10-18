@@ -1,15 +1,6 @@
 #!/bin/bash
 
-cd "$(dirname $0)"
-
-source .env
-
-for EACH_DATABASES in DATABASES/*;
-do
-    CURRENT_DB=${EACH_DATABASES#'DATABASES/'}
-    COLLECTIONS_LIST=`sh -c "ls ${EACH_DATABASES}"`
-    COLLECTIONS_LIST=(${COLLECTIONS_LIST//'.json'/})
-
+import_action() {
     for EACH_COLLECTION in ${COLLECTIONS_LIST[@]};
     do
         mongosh \
@@ -36,6 +27,19 @@ do
         --mode=upsert \
         --file "DATABASES/${CURRENT_DB}/${EACH_COLLECTION}.json"
     done
+}
+
+cd "$(dirname $0)"
+
+source .env
+
+for EACH_DATABASES in DATABASES/*;
+do
+    CURRENT_DB=${EACH_DATABASES#'DATABASES/'}
+    COLLECTIONS_LIST=`sh -c "ls ${EACH_DATABASES}"`
+    COLLECTIONS_LIST=(${COLLECTIONS_LIST//'.json'/})
+
+    import_action&
 done
 
 

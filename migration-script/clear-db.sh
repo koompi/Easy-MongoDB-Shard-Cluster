@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source .env
+
 DATABASES=`mongosh \
 --quiet \
 --authenticationDatabase admin \
@@ -15,6 +17,11 @@ DATABASES=`echo ${DATABASES//[0-9.0-9]} | sed 's/.iB//g'`
 
 for DATABASE in ${DATABASES[@]};
 do
+    [[ ${DATABASE} == "admin" ]] ||
+    [[ ${DATABASE} == "local" ]] ||
+    [[ ${DATABASE} == "config" ]] &&
+    continue;
+    
     mongosh \
     --quiet \
     --authenticationDatabase admin \
